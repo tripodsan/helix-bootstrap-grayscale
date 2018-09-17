@@ -37,11 +37,15 @@ Grayscale is a free Bootstrap theme created by Start Bootstrap. It can be       
 
 Grayscale is open source and MIT licensed. This means you can use it for any project - even commercial projects! Download it, customize it, and publish your website!
 
+---
+
 #### Misty
 
 ![demo-image-01.jpg](/dist/img/demo-image-01.jpg)
 
 An example of where you can put an image of a project, or anything else, along with a description.
+
+---
 
 #### Mountains
 

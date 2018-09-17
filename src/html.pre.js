@@ -45,9 +45,15 @@ function pre(payload) {
   DOMAPI.decorate(payload.content.sections, 'about', 'section', 'about-section text-center');
   DOMAPI.decorate(payload.content.sections, 'about', 'h2', 'text-white mb-4');
   DOMAPI.decorate(payload.content.sections, 'about', 'p', 'text-white-50');
+
   DOMAPI.decorate(payload.content.sections, 'about', 'img', 'img-fluid');
   DOMAPI.wrap(payload.content.sections, 'about', ['h2', 'p'], 'div', ['container', 'row', 'col-lg-8 mx-auto']);
   DOMAPI.move(payload.content.sections, 'about', 'img', '.container');
+
+  DOMAPI.decorate(payload.content.sections, 'projects', 'p', 'text-black-50 mb-0');
+  DOMAPI.decorate(payload.content.sections, 'projects', 'img', 'img-fluid mb-3 mb-lg-0');
+  DOMAPI.wrap(payload.content.sections, 'projects', ['h2', 'p'], 'div', ['container', 'row', 'col-lg-8 mx-auto']);
+  DOMAPI.wrap(payload.content.sections, 'projects', ['img'], 'div', ['container', 'row align-items-center no-gutters mb-4 mb-lg-5', 'col-xl-4 col-lg-5', 'featured-text text-center text-lg-left']);
 
 }
 
