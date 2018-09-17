@@ -18,6 +18,7 @@
 
 const select = require('unist-util-select');
 const hastSelectAll = require('hast-util-select').selectAll;
+const hastSelect = require('hast-util-select').select;
 const toHAST = require('mdast-util-to-hast');
 const toHTML = require('hast-util-to-html');
 const mdastSqueezeParagraphs = require('mdast-squeeze-paragraphs');
@@ -31,29 +32,74 @@ const mdastFlattenLists = require('mdast-flatten-listitem-paragraphs');
  */
 function pre(payload) {
 
-  // TODO move to pipeline
+  // TODO move as extension points to the pipeline: state machine and section types is project specific
   payload.content.sections = PIPELINE_CUST.sectionsPipeline(payload);
 
   // EXTENSION point demo
-  // -> I need a different DOM for the masthead section
+  // -> I need a different DOM for the sections
   DOMAPI.decorate(payload.content.sections, 'masthead', 'h1', 'mx-auto my-0 text-uppercase');
   DOMAPI.decorate(payload.content.sections, 'masthead', 'h2', 'text-white-50 mx-auto mt-2 mb-5');
   DOMAPI.decorate(payload.content.sections, 'masthead', 'p a', 'btn btn-primary js-scroll-trigger');
-  DOMAPI.sectionWrapper(payload.content.sections, 'masthead', ['h1', 'h2', 'p'], 'div', ['container d-flex h-100 align-items-center', 'mx-auto text-center']);
+  DOMAPI.wrap(payload.content.sections, 'masthead', ['h1', 'h2', 'p'], 'div', ['container d-flex h-100 align-items-center', 'mx-auto text-center']);
+
+  DOMAPI.decorate(payload.content.sections, 'about', 'section', 'about-section text-center');
+  DOMAPI.decorate(payload.content.sections, 'about', 'h2', 'text-white mb-4');
+  DOMAPI.decorate(payload.content.sections, 'about', 'p', 'text-white-50');
+  DOMAPI.decorate(payload.content.sections, 'about', 'img', 'img-fluid');
+  DOMAPI.wrap(payload.content.sections, 'about', ['h2', 'p'], 'div', ['container', 'row', 'col-lg-8 mx-auto']);
+  DOMAPI.move(payload.content.sections, 'about', 'img', '.container');
 
 }
 
 module.exports.pre = pre;
 
 const DOMAPI = {
-  decorate: function (sections, type, selector, css) {
+  getSections: function (sections, type) {
     const sectionsFound = [];
 
     sections.children.forEach(function (s) {
       if (s.type == type) {
         sectionsFound.push(s);
+      } 
+    });
+
+    return sectionsFound;
+  },
+
+  move: function (sections, type, tagName, destSelector) {
+    let hasChanged = false;
+    const sectionsFound = DOMAPI.getSections(sections, type);
+
+    sectionsFound.forEach(function (s) {
+      const dest = hastSelect(destSelector, s.hast);
+      if (!dest) {
+        console.log('move cannot find dest in section',s);
+        return;
+      }
+      dest.children = dest.children || [];
+
+      let indexToRemove = [];
+      s.hast.children.forEach(function (node, index) {
+        if (tagName == node.tagName) {
+          dest.children.push(node);
+          indexToRemove.push(index);
+          hasChanged = true;
+        }
+      });
+      for (let i = indexToRemove.length - 1; i >= 0; i--) {
+        s.hast.children.splice(indexToRemove[i], 1);
       }
     });
+
+    if (hasChanged) {
+      //re-generate html
+      DOMAPI.toHTML(sections);
+    }
+  },
+
+  decorate: function (sections, type, selector, css) {
+    let hasChanged = false;
+    const sectionsFound = DOMAPI.getSections(sections, type);
 
     sectionsFound.forEach(function (s) {
       const nodes = hastSelectAll(selector, s.hast);
@@ -63,23 +109,21 @@ const DOMAPI = {
         node.properties = node.properties || { className: '' };
         node.properties.className = node.properties.className || '';
         node.properties.className += ` ${css}`;
+        hasChanged = true;
       });
     });
 
-    //re-generate html
-    DOMAPI.toHTML(sections);
+    if (hasChanged) {
+      //re-generate html
+      DOMAPI.toHTML(sections);
+    }
   },
 
   // could become something like sections.select('hero p', 'hero h1').wrap('div', ['hero_wrapper', 'hero_text', 'hero_title']);
   // moves all "tagNames" nodes from a section inside multiple level of wrappers decorated by classes
-  sectionWrapper: function (sections, type, tagNames, wrapperTag, classes) {
-    const sectionsFound = [];
-
-    sections.children.forEach(function (s) {
-      if (s.type == type) {
-        sectionsFound.push(s);
-      }
-    });
+  wrap: function (sections, type, tagNames, wrapperTag, classes) {
+    let hasChanged = false;
+    const sectionsFound = DOMAPI.getSections(sections, type);
 
     sectionsFound.forEach(function (s) {
       let addToNode;
@@ -116,6 +160,7 @@ const DOMAPI = {
 
           // append node to new structure
           addToNode.children.push(node);
+          hasChanged = true;
         }
       });
       for (let i = indexToRemove.length - 1; i >= 0; i--) {
@@ -123,8 +168,10 @@ const DOMAPI = {
       }
     });
 
-    //re-generate html
-    DOMAPI.toHTML(sections);
+    if (hasChanged) {
+      //re-generate html
+      DOMAPI.toHTML(sections);
+    }
   },
 
   toHTML: function(sections) {
