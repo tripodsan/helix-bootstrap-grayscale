@@ -19,8 +19,6 @@
 
 ## A free, responsive, one page Bootstrap theme created by Start Bootstrap.
 
-![masthead](/dist/img/bg-masthead.jpg)
-
 [Get Started](#about)
 
 ---

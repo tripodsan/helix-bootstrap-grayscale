@@ -17,7 +17,7 @@
  */
 
 const select = require('unist-util-select');
-const hastSelect = require('hast-util-select').select
+const hastSelectAll = require('hast-util-select').selectAll;
 const toHAST = require('mdast-util-to-hast');
 const toHTML = require('hast-util-to-html');
 const mdastSqueezeParagraphs = require('mdast-squeeze-paragraphs');
@@ -35,7 +35,7 @@ const LayoutMachine = {
       init -> hero, flow
       hero -> flow
   */
-  validStates: ['hero', 'flow', 'gallery', 'textimage', 'imagetext', 'text'],
+  validStates: ['init', 'masthead', 'about', 'projects', 'signup'],
   states: ['init'],
   get state() {
     return this.states[this.states.length - 1];
@@ -57,33 +57,19 @@ const LayoutMachine = {
     } else {
       switch (this.state) {
         case 'init':
-          if (this.isHero(section)) {
-            this.state = 'hero';
+          // if (this.isHero(section)) {
+            this.state = 'masthead';
             break;
-          }
-        case 'hero':
-        case 'flow':
-        case 'textimage':
-        case 'imagetext':
-        case 'text':
-          if (this.isTextImage(section)) {
-            this.state = 'textimage';
-          } else {
-            if (this.isImageText(section)) {
-              this.state = 'imagetext';
-            } else {
-              if (this.isText(section)) {
-                this.state = 'text';
-              } else {
-                if (this.isGallery(section)) {
-                  this.state = 'gallery';
-                } else {
-                  this.state = 'flow';
-                }
-              }
-            }
-          }
-          break;
+          // }
+        case 'masthead':
+            this.state = 'about';
+            break;
+        case 'about':
+            this.state = 'projects';
+            break;
+        case 'projects':
+            this.state = 'signup';
+            break;
       }
       section.class = this.state;
     }
@@ -135,7 +121,10 @@ const LayoutMachine = {
 
 function getSmartDesign(mdast, breakSection) {
   breakSection = breakSection ? breakSection : function (node) {
-    return node.type == 'thematicBreak';
+    return {
+      break: node.type == 'thematicBreak',
+      include: false
+    }
   };
 
   mdast = mdastFlattenImages()(mdast);
@@ -149,16 +138,12 @@ function getSmartDesign(mdast, breakSection) {
   let currentSection = {
     children: [],
     type: 'standard',
-    index
+    index: index++
   };
 
   let title;
 
   mdastNodes.forEach(function (node) {
-    if (node.type == 'heading' && node.depth == 1 && !title) {
-      title = node.children[0].value;
-      return;
-    }
     const br = breakSection(node);
     if (br.break) {
       sections.push(LayoutMachine.layout(currentSection));
@@ -193,7 +178,7 @@ function computeSectionsHAST(sectionsMdast) {
       properties: {
         className: section.class + ' ' + ((odd = !odd) ? 'odd' : 'even'),
       },
-      tagName: 'section',
+      tagName: section.index > 0 ? 'section' : 'header',
       children: hast.children,
       data: {
         type: section.class
@@ -235,77 +220,120 @@ function sectionsPipeline(payload, breakSection) {
   }
 }
 
-function sectionWrapper(sections, type, tagName, wrapperTag, classes) {
-  const sectionsFound = [];
-  const sectionsHAST = [];
-
-  sections.children.forEach(function (s) {
-    sectionsHAST.push(s.hast);
-    if (s.type == type) {
-      sectionsFound.push(s);
-    }
-  });
-
-  sectionsFound.forEach(function (s) {
-    s.hast.children.forEach(function (node, index) {
-      if (node.tagName == tagName) {
-        console.log('found hast node', node);
-        const rootNewNode = {};
-        let currentNode = rootNewNode;
-        classes.forEach(function (css, index) {
-          currentNode.type = 'element';
-          currentNode.tagName = wrapperTag;
-          currentNode.properties = {
-            className: css
-          }
-          currentNode.children = [];
-          if (index < classes.length - 1) {
-            //link next node to parent
-            const n = currentNode;
-            currentNode = {};
-            n.children.push(currentNode);
-          }
-        });
-        currentNode.children = [];
-        currentNode.children.push(node);
-        console.log('new node to replace', rootNewNode);
-        s.hast.children[index] = rootNewNode;
-      }
-    });
-    s.html = toHTML(s.hast);
-  });
-
-
-  sections.html = toHTML({
-    type: 'root',
-    children: sectionsHAST
-  });
-}
-
-
 /**
  * The 'pre' function that is executed before the HTML is rendered
  * @param payload The current payload of processing pipeline
  * @param payload.content The content
  */
 function pre(payload) {
-  const determineBreaks = function (mdast) {
-    const isTB = mdast.type == 'thematicBreak'; // ---
-    const isH2 = mdast.type == 'heading' && mdast.depth == 2;
-    return {
-      break: isTB || isH2,
-      include: isH2
-    }
-  }
-  payload.content.sections = sectionsPipeline(payload, determineBreaks);
+  // move to pipeline
+  payload.content.sections = sectionsPipeline(payload);
 
   // EXTENSION point demo
-  // -> I need a different DOM for the hero section
-  // could become something like sections.select('hero p').wrap('div', ['hero_wrapper', 'hero_text', 'hero_title']);
-  sectionWrapper(payload.content.sections, 'hero', 'p', 'div', ['hero_wrapper', 'hero_text', 'hero_title']);
-  sectionWrapper(payload.content.sections, 'hero', 'img', 'div', ['hero_img']);
-
+  // -> I need a different DOM for the masthead section
+  DOMAPI.decorate(payload.content.sections, 'masthead', 'h1', 'mx-auto my-0 text-uppercase');
+  DOMAPI.decorate(payload.content.sections, 'masthead', 'h2', 'text-white-50 mx-auto mt-2 mb-5');
+  DOMAPI.decorate(payload.content.sections, 'masthead', 'p a', 'btn btn-primary js-scroll-trigger');
+  DOMAPI.sectionWrapper(payload.content.sections, 'masthead', ['h1', 'h2', 'p'], 'div', ['container d-flex h-100 align-items-center', 'mx-auto text-center']);
 
 }
 
 module.exports.pre = pre;
+
+const DOMAPI = {
+  decorate: function (sections, type, selector, css) {
+    const sectionsFound = [];
+
+    sections.children.forEach(function (s) {
+      if (s.type == type) {
+        sectionsFound.push(s);
+      }
+    });
+
+    sectionsFound.forEach(function (s) {
+      const nodes = hastSelectAll(selector, s.hast);
+
+      console.log('hastSelectAll found hast node', nodes);
+      nodes.forEach(function (node) {
+        node.properties = node.properties || { className: '' };
+        node.properties.className = node.properties.className || '';
+        node.properties.className += ` ${css}`;
+      });
+    });
+
+    //re-generate html
+    DOMAPI.toHTML(sections);
+  },
+
+  // could become something like sections.select('hero p', 'hero h1').wrap('div', ['hero_wrapper', 'hero_text', 'hero_title']);
+  // moves all "tagNames" nodes from a section inside multiple level of wrappers decorated by classes
+  sectionWrapper: function (sections, type, tagNames, wrapperTag, classes) {
+    const sectionsFound = [];
+
+    sections.children.forEach(function (s) {
+      if (s.type == type) {
+        sectionsFound.push(s);
+      }
+    });
+
+    sectionsFound.forEach(function (s) {
+      let addToNode;
+      let indexToRemove = [];
+      s.hast.children.forEach(function (node, index) {
+        if (tagNames.indexOf(node.tagName) !== -1) {
+          console.log('found hast node', node);
+          if (!addToNode) {
+            // create new structure
+            const rootNewNode = {};
+            let currentNode = rootNewNode;
+            classes.forEach(function (css, index) {
+              currentNode.type = 'element';
+              currentNode.tagName = wrapperTag;
+              currentNode.properties = {
+                className: css
+              }
+              currentNode.children = [];
+              if (index < classes.length - 1) {
+                //link next node to parent
+                const n = currentNode;
+                currentNode = {};
+                n.children.push(currentNode);
+              }
+            });
+            currentNode.children = [];
+            console.log('new node to replace', rootNewNode);
+            s.hast.children.splice(index, 1, rootNewNode);
+            addToNode = currentNode;
+          } else {
+            // just remove node from current structure
+            indexToRemove.push(index);
+          }
+
+          // append node to new structure
+          addToNode.children.push(node);
+        }
+      });
+      for (let i = indexToRemove.length - 1; i >= 0; i--) {
+        s.hast.children.splice(indexToRemove[i], 1);
+      }
+    });
+
+    //re-generate html
+    DOMAPI.toHTML(sections);
+  },
+
+  toHTML: function(sections) {
+    const sectionsHAST = [];
+
+    sections.children.forEach(function (s) {
+      s.html = toHTML(s.hast);
+      sectionsHAST.push(s.hast);
+    });
+
+    sections.html = toHTML({
+      type: 'root',
+      children: sectionsHAST
+    });
+  }
+  
+};
