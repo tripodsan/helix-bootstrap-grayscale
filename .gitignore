@@ -1,0 +1,10 @@
+.hlx/
+.cache/
+node_modules/
+pipeline.log
+logs
+env.inf
+
+dist/**/*.min.*
+dist/css/*
+dist/vendor/*

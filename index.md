@@ -14,21 +14,53 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-![helix-logo](./helix_logo.png)
 
-# Helix - helix-bootstrap-grayscale
+# Grayscale
 
-It works! helix-bootstrap-grayscale is up and running.
+## A free, responsive, one page Bootstrap theme created by Start Bootstrap.
 
-## What's next?
+![masthead](/dist/img/bg-masthead.jpg)
 
-1. Try editing `index.md` and see what happens.
-2. Try editing `src/html.htl` to change the HTML output
-3. Try editing `src/static/style.css` to change the way this page looks
+[Get Started](#about)
 
-## And then?
+---
 
-4. Commit your changes: `git commit -a`
-5. Publish your project to GitHub: `git add git remote add origin https://github.com/user/repo.git && git push`
-6. Deploy the project: `hlx deploy`
-7. Make it visible to the world: `hlx strains`
+# Built with Bootstrap 4
+
+Grayscale is a free Bootstrap theme created by Start Bootstrap. It can be                         yours right now, simply download the template on [the preview page](http://startbootstrap.com/template-overviews/grayscale/). The theme is open source, and you can use it for any purpose, personal or commercial.
+
+![ipad](/dist/img/ipad.png)
+
+---
+
+#### Shoreline
+
+![bg-masthead](/dist/img/bg-masthead.jpg)
+
+Grayscale is open source and MIT licensed. This means you can use it for any project - even commercial projects! Download it, customize it, and publish your website!
+
+#### Misty
+
+![demo-image-01.jpg](/dist/img/demo-image-01.jpg)
+
+An example of where you can put an image of a project, or anything else, along with a description.
+
+#### Mountains
+
+![demo-image-02.jpg](/dist/img/demo-image-02.jpg)
+Another example of a project with its respective description. These sections work well responsively as well, try this theme on a small screen!
+
+---
+
+## Subscribe to receive updates!
+
+<form>
+  <input type="email" id="inputEmail" placeholder="Enter email address...">
+  <button type="submit">Subscribe</button>
+</form>
+
+---
+
+* Address: 4923 Market Street, Orlando FL
+* Email: hello@yourdomain.com
+* Phone: +1 (555) 902-8832
