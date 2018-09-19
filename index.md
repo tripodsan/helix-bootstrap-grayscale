@@ -25,7 +25,7 @@
 
 ## Built with Bootstrap 4
 
-Grayscale is a free Bootstrap theme created by Start Bootstrap. It can be                         yours right now, simply download the template on [the preview page](http://startbootstrap.com/template-overviews/grayscale/). The theme is open source, and you can use it for any purpose, personal or commercial.
+Grayscale is a free Bootstrap theme created by Start Bootstrap. It can be yours right now, simply download the template on [the preview page](http://startbootstrap.com/template-overviews/grayscale/). The theme is open source, and you can use it for any purpose, personal or commercial.
 
 ![ipad](/dist/img/ipad.png)
 

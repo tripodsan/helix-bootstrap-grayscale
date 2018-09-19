@@ -1,5 +1,7 @@
 # Helix Bootstrap Grayscale
 
+![bg-masthead](/dist/img/bg-masthead.jpg)
+
 Helix implementation of the "Grayscale" bootstrap template: see [https://startbootstrap.com/template-overviews/grayscale/](https://startbootstrap.com/template-overviews/grayscale/)
 
 # Install

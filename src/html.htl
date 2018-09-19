@@ -50,7 +50,36 @@
         </div>
     </nav>
 
-    <main>${payload.content.sections.html}</main>
+    <template data-sly-template.section_masthead="${@section}">
+        <header class="masthead">
+            <div class="container d-flex h-100 align-items-center">
+                <div class="mx-auto text-center">
+                    <h1 class="mx-auto my-0 text-uppercase">${section.title}</h1>
+                    <h2 class="text-white-50 mx-auto mt-2 mb-5">${section.children[2].children[0].value}</h2>
+                    <a href="#about" class="btn btn-primary js-scroll-trigger">${section.intro}</a>
+                </div>
+            </div>
+        </header>
+    </template>
+
+    <template data-sly-template.section_about="${@section}">
+        <section class="about even about-section text-center">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 mx-auto">
+                        <h2 class=" text-white mb-4">${section.title}</h2>
+                        <p class=" text-white-50">${section.intro}</p>
+                    </div>
+                </div>
+                <img src="${section.image}" class="img-fluid">
+            </div>
+        </section>
+    </template>
+
+    <main>
+        <div data-sly-call="${section_masthead@section=content.sections[0] }"></div>
+        <div data-sly-call="${section_about@section=content.sections[1] }"></div>
+    </main>
 
     <!-- Footer -->
     <footer class="bg-black small text-center text-white-50">
