@@ -5,6 +5,6 @@ pipeline.log
 logs
 env.inf
 
-dist/**/*.min.*
-dist/css/*
-dist/vendor/*
+src/dist/**/*.min.*
+src/dist/css/*
+src/dist/vendor/*

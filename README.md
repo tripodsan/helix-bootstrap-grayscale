@@ -8,7 +8,8 @@ Helix implementation of the "Grayscale" bootstrap template: see [https://startbo
 
 ```
 git clone https://github.com/kptdobe/helix-bootstrap-grayscale.git
-cd helix-bootstrap-grayscale/dist
+cd helix-bootstrap-grayscale/src/dist
+npm install
 gulp
 cd ..
 hlx up
