@@ -5,6 +5,7 @@ var cleanCSS = require('gulp-clean-css');
 var rename = require("gulp-rename");
 var uglify = require('gulp-uglify');
 var autoprefixer = require('gulp-autoprefixer');
+var path = require('path');
 var pkg = require('./package.json');
 var browserSync = require('browser-sync').create();
 
@@ -17,6 +18,12 @@ var banner = ['/*!\n',
   '\n'
 ].join('');
 
+// use this with absolute paths in HTL
+// var dist = path.resolve(__dirname, '../webroot/dist');
+
+// use this with relative paths in HTL
+var dist = path.resolve(__dirname, '.');
+
 // Copy third party libraries from /node_modules into /vendor
 gulp.task('vendor', function() {
 
@@ -26,26 +33,26 @@ gulp.task('vendor', function() {
       '!./node_modules/bootstrap/dist/css/bootstrap-grid*',
       '!./node_modules/bootstrap/dist/css/bootstrap-reboot*'
     ])
-    .pipe(gulp.dest('./vendor/bootstrap'))
+    .pipe(gulp.dest(dist + '/vendor/bootstrap'))
 
   // Font Awesome 5
   gulp.src([
       './node_modules/@fortawesome/**/*'
     ])
-    .pipe(gulp.dest('./vendor'))
+    .pipe(gulp.dest(dist + '/vendor'))
 
   // jQuery
   gulp.src([
       './node_modules/jquery/dist/*',
       '!./node_modules/jquery/dist/core.js'
     ])
-    .pipe(gulp.dest('./vendor/jquery'))
+    .pipe(gulp.dest(dist + '/vendor/jquery'))
 
   // jQuery Easing
   gulp.src([
       './node_modules/jquery.easing/*.js'
     ])
-    .pipe(gulp.dest('./vendor/jquery-easing'))
+    .pipe(gulp.dest(dist + '/vendor/jquery-easing'))
 
 });
 
@@ -62,7 +69,7 @@ gulp.task('css:compile', function() {
     .pipe(header(banner, {
       pkg: pkg
     }))
-    .pipe(gulp.dest('./css'))
+    .pipe(gulp.dest(dist + '/css'))
 });
 
 // Minify CSS
@@ -75,7 +82,7 @@ gulp.task('css:minify', ['css:compile'], function() {
     .pipe(rename({
       suffix: '.min'
     }))
-    .pipe(gulp.dest('./css'))
+    .pipe(gulp.dest(dist + '/css'))
     .pipe(browserSync.stream());
 });
 
@@ -95,7 +102,7 @@ gulp.task('js:minify', function() {
     .pipe(header(banner, {
       pkg: pkg
     }))
-    .pipe(gulp.dest('./js'))
+    .pipe(gulp.dest(dist + '/js'))
     .pipe(browserSync.stream());
 });
 

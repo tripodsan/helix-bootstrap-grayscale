@@ -1,0 +1,9 @@
+- strain:
+    name: default
+    code: /kptadobe/default/git-github-com-kptadobe-helix-bootstrap-grayscale-git--master--
+    content:
+      repo: helix-bootstrap-grayscale
+      ref: master
+      owner: kptadobe
+    static:
+      root: /webroot
